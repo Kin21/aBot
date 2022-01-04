@@ -44,7 +44,7 @@ class Update:
 
     def get_command(self):
         if not self.is_bot_command():
-            return None
+            return None, None
         command, *args = self.message.text.split(' ')
         return command, args
     

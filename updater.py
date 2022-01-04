@@ -26,7 +26,8 @@ class Updater:
             if self.current_offset:
                 payload['offset'] = self.current_offset
             update_req = requests.post(update_link, data=payload)
-            self.feed_queue(update_req.json())
+            if update_req.json()['ok'] == True:
+                self.feed_queue(update_req.json())
 
     def feed_queue(self, update_req):
         if not update_req['ok']:
@@ -34,8 +35,11 @@ class Updater:
             return
         result = update_req['result']
         for update in result:
-            tmp_update = Update(update['update_id'], Message(update['message']))
-            self.req_queue.put(tmp_update)
+            try:
+                tmp_update = Update(update['update_id'], Message(update['message']))
+                self.req_queue.put(tmp_update)
+            except KeyError:
+                continue
         else:
             if update:
                 self.current_offset = update['update_id'] + 1
