@@ -2,12 +2,14 @@ import hide
 import requests
 import time
 import re
-import os
+import threading
+import subprocess
 
 telegram_api_link = 'https://api.telegram.org/bot{TOKEN}/{METHOD_NAME}'
 telegram_api_link = telegram_api_link.format(TOKEN = hide.API_TOKEN, METHOD_NAME = '{METHOD_NAME}')
 
 send_message_link = telegram_api_link.format(METHOD_NAME = 'sendMessage')
+send_document_link = telegram_api_link.format(METHOD_NAME = 'sendDocument')
 
 class Responder:
     def __init__(self, req_queue, log_db):
@@ -19,7 +21,7 @@ class Responder:
         while True:
             if not self.q.empty():
                 req = self.q.get()
-                self.do(req)
+                threading.Thread(target=lambda r=req: self.do(r), daemon=True).start()
             else:
                 time.sleep(0.5)
 
@@ -36,6 +38,11 @@ class Responder:
             nick = ' '.join(args)
             if re.fullmatch(r'[A-Za-z0-9@\\. ]{3,20}', nick):
                 nick = '"' + nick + '"'
-                self.send_text(chat_id, 'You are trying to search: {}'.format(nick))
+                self.snoop_nickname_search(nick)
+                self.send_text(chat_id, "I've just woke up))")
             else:
                 self.send_text(chat_id, 'Nickname you have written is not valid for the search!')
+
+    def snoop_nickname_search(self, nick):
+        time.sleep(10)
+        

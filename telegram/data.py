@@ -1,3 +1,5 @@
+import time 
+
 class MessageEntity:
     def __init__(self, ent:list) -> None:
         self.type = ent[0]['type']
@@ -12,6 +14,15 @@ class Chat:
     def __str__(self) -> str:
         return str(self.id)
 
+class Document:
+    def __init__(self, doc:dict) -> None:
+        self.file_id = doc['file_id']
+        self.file_unique_id = doc['file_unique_id']
+        try:
+            self.file_name = doc['file_name']
+        except KeyError:
+            self.file_name = str(time.time())
+
 class Message:
     def __init__(self,message:dict) -> None:
         self.message_id = message['message_id']
@@ -21,6 +32,10 @@ class Message:
             self.entities = MessageEntity(message['entities'])
         except KeyError:
             self.entities = None
+        try:
+            self.document = Document(message['document'])
+        except KeyError:
+            self.document = None
     
     def is_bot_command(self):
         if self.entities:
