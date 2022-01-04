@@ -22,6 +22,9 @@ class Message:
         except KeyError:
             self.entities = None
     
+    def is_bot_command(self):
+        if self.entities:
+            return self.entities.type == 'bot_command'
 
     def __str__(self) -> str:
         return 'message_id: {}, chat: {}, text: {}, entities: {}'.format(self.message_id, self.chat, self.text, self.entities)
@@ -34,6 +37,18 @@ class Update:
     
     def __str__(self) -> str:
         return 'update_id: {}, message: [{}]'.format(self.update_id, self.message)
-     
+
+    def is_bot_command(self):
+        if self.message:
+            return self.message.is_bot_command()
+
+    def get_command(self):
+        if not self.is_bot_command():
+            return None
+        command, *args = self.message.text.split(' ')
+        return command, args
+    
+    def get_chat_id(self):
+        return self.message.chat.id
 
 
