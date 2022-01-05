@@ -3,7 +3,7 @@ import requests
 import time
 import re
 import threading
-import subprocess
+import os
 
 telegram_api_link = 'https://api.telegram.org/bot{TOKEN}/{METHOD_NAME}'
 telegram_api_link = telegram_api_link.format(TOKEN = hide.API_TOKEN, METHOD_NAME = '{METHOD_NAME}')
@@ -38,11 +38,19 @@ class Responder:
             nick = ' '.join(args)
             if re.fullmatch(r'[A-Za-z0-9@\\. ]{3,20}', nick):
                 nick = '"' + nick + '"'
-                self.snoop_nickname_search(nick)
-                self.send_text(chat_id, "I've just woke up))")
+                self.send_text(chat_id, 'You are searching for {}, it takes up to 2 minutes.'.format(nick))
+                res = self.snoop_nickname_search(nick)
+                self.send_text(chat_id, res)
             else:
                 self.send_text(chat_id, 'Nickname you have written is not valid for the search!')
 
     def snoop_nickname_search(self, nick):
-        time.sleep(10)
-        
+        '''
+            Uses snoop project: https://github.com/snooppr/snoop
+            Regex match used to prevent OS injections and inappropriate nicknames
+            Snoop code must be in the same folder as bot code
+        '''
+        command = 'python3 snoop.py -n -f -t 10 ' + nick + '| grep [+]'
+        stream = os.popen(command)
+        res = stream.read()
+        return res

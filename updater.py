@@ -41,7 +41,10 @@ class Updater:
             except KeyError:
                 continue
         else:
-            if update:
-                self.current_offset = update['update_id'] + 1
-            else:
-                self.current_offset = 0
+            try:
+                if update:
+                    self.current_offset = update['update_id'] + 1
+                else:
+                    self.current_offset = 0
+            except:
+                return
