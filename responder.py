@@ -28,13 +28,23 @@ class Responder:
     def send_text(self, chat_id, text):
         payload = {'chat_id': chat_id, 'text': text}
         requests.post(send_message_link, data=payload)
+    
+    def send_document(self, chat_id, *, telegram_doc_id = None, path_to_local_file = None):
+        if path_to_local_file:
+            try:
+                with open(path_to_local_file, 'rb') as file:
+                    args = {'chat_id': chat_id}
+                    requests.post(send_document_link, data=args, files = {'document': file})
+            except FileNotFoundError:
+                pass
+
 
     def do(self, req):
         command, args = req.get_command()
         chat_id = req.get_chat_id()
         if command == '/start':
             self.send_text(chat_id, 'Hello there !')
-        if command == '/nick':
+        elif command == '/nick':
             nick = ' '.join(args)
             if re.fullmatch(r'[A-Za-z0-9@\\. ]{3,20}', nick):
                 nick = '"' + nick + '"'
@@ -43,6 +53,9 @@ class Responder:
                 self.send_text(chat_id, res)
             else:
                 self.send_text(chat_id, 'Nickname you have written is not valid for the search!')
+        elif command == '/file':
+            file = req.message.document
+            self.send_document(chat_id, path_to_local_file='t.txt')
 
     def snoop_nickname_search(self, nick):
         '''

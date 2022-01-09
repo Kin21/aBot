@@ -21,7 +21,7 @@ class Updater:
         return get_bot_req.json()['ok']        
         
     def start(self):
-        payload = {'offset': 0, 'timeout': 100, 'allowed_updates': ["message"]}
+        payload = {'offset': 0, 'timeout': 100}
         while True:
             if self.current_offset:
                 payload['offset'] = self.current_offset
